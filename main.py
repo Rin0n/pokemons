@@ -1,52 +1,35 @@
 import telebot
 from config import token
-from logic import Pokemon
-
+from logic import Pokemon, Fighter
+import random
 bot = telebot.TeleBot(token)
 
 
 @bot.message_handler(commands=['go'])
 def go(message):
-    user_id = message.from_user.id
-    name = message.from_user.first_name
-    username = message.from_user.username
-
-    # Упоминание пользователя: если есть username — используем @, иначе HTML-ссылку
-    if username:
-        mention = f"@{username}"
+    if message.from_user.username not in Pokemon.pokemons.keys():
+        if random.randint(0, 99) < 30:
+            pokemon = Fighter(message.from_user.username)
+            bot.send_message(message.chat.id, f'@{message.from_user.username} вам выпал ФАЙТЕР')
+        else:
+            pokemon = Pokemon(message.from_user.username)
+        
+        bot.send_message(message.chat.id, pokemon.info())
+        bot.send_photo(message.chat.id, pokemon.show_img())
     else:
-        mention = f"<a href='tg://user?id={user_id}'>{name}</a>"
+        bot.reply_to(message, "Ты уже создал себе покемона")
 
-    # Проверка по user_id (так надёжнее)
-    if user_id not in Pokemon.pokemons.keys():
-        pokemon = Pokemon(user_id)
-
-        # Сообщение с информацией о покемоне
-        text = (
-            f"{mention}, вот твой покемон!\n\n"
-            f"{pokemon.info()}\n\n"
-            f"Настроение: {pokemon.mood}"
-        )
-
-        bot.send_message(
-            message.chat.id,
-            text,
-            parse_mode="HTML"
-        )
-
-        # Отправляем фото с подписью
-        bot.send_photo(
-            message.chat.id,
-            pokemon.show_img(),
-            caption=f"{pokemon.name} готов к приключениям!"
-        )
-
+@bot.message_handler(commands=['attack'])
+def attack_pok(message):
+    if message.reply_to_message:
+        if message.reply_to_message.from_user.username in Pokemon.pokemons.keys() and message.from_user.username in Pokemon.pokemons.keys():
+            enemy = Pokemon.pokemons[message.reply_to_message.from_user.username]
+            pok = Pokemon.pokemons[message.from_user.username]
+            res = pok.attack(enemy)
+            bot.send_message(message.chat.id, res)
+        else:
+            bot.send_message(message.chat.id, "Сражаться можно только с покемонами")
     else:
-        bot.send_message(
-            message.chat.id,
-            f"{mention}, ты уже создал себе покемона!",
-            parse_mode="HTML"
-        )
-
+            bot.send_message(message.chat.id, "Чтобы атаковать, нужно ответить на сообщения того, кого хочешь атаковать")
 
 bot.infinity_polling(none_stop=True)

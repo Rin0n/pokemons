@@ -12,7 +12,8 @@ class Pokemon:
         self.pokemon_number = randint(1,1000)
         self.img = self.get_img()
         self.name = self.get_name()
-
+        self.hp = randint(50, 100)
+        self.power = randint(10, 20)
 
         self.mood = moods[randint(0, len(moods)-1)]
 
@@ -44,11 +45,29 @@ class Pokemon:
         return f"{self.name} использует {self.ability} и наносит {dmg} урона!"
 
     # Метод класса для получения информации
-    def info(self, mood):
-        return f"Имя и настроение твоего покеомона: {self.name}, {self.mood}"
+    def info(self):
+        return f'''
+        Имя твоего покемона: {self.name}
+        Настроение твоего покемона: {self.mood}
+        hp: {self.hp}
+        power: {self.power}
+        '''           
+    def attack(self, enemy):
+        if enemy.hp > self.power:
+            enemy.hp -= self.power
+            return f"Сражение @{self.pokemon_trainer} с @{enemy.pokemon_trainer}"
+        else:
+            enemy.hp = 0
+            return f"Победа @{self.pokemon_trainer} над @{enemy.pokemon_trainer}!"
     # Метод класса для получения картинки покемона
     def show_img(self):
         return self.img
-
+class Fighter(Pokemon):
+    def attack(self, enemy):
+        sp = randint(5,15)
+        self.power += sp
+        результат = super().attack(enemy)
+        self.power -= sp
+        return результат + f"\nБоец применил супер-атаку силой:{sp} "
 
 
