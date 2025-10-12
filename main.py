@@ -1,11 +1,10 @@
-import telebot 
+import telebot
 from config import token
-
 from logic import Pokemon
 
-bot = telebot.TeleBot(token) 
+bot = telebot.TeleBot(token)
 
-@bot.message_handler(commands=['go'])
+
 @bot.message_handler(commands=['go'])
 def go(message):
     user_id = message.from_user.id
@@ -18,22 +17,36 @@ def go(message):
     else:
         mention = f"<a href='tg://user?id={user_id}'>{name}</a>"
 
-    # Проверка по user_id, а не username (так надёжнее)
+    # Проверка по user_id (так надёжнее)
     if user_id not in Pokemon.pokemons.keys():
         pokemon = Pokemon(user_id)
+
+        # Сообщение с информацией о покемоне
+        text = (
+            f"{mention}, вот твой покемон!\n\n"
+            f"{pokemon.info()}\n\n"
+            f"Настроение: {pokemon.mood}"
+        )
+
         bot.send_message(
             message.chat.id,
-            f"{mention}, вот твой покемон!\n{pokemon.info()}",
-            parse_mode="HTML"  # <-- обязательно!
+            text,
+            parse_mode="HTML"
         )
-        bot.send_photo(message.chat.id, pokemon.show_img())
+
+        # Отправляем фото с подписью
+        bot.send_photo(
+            message.chat.id,
+            pokemon.show_img(),
+            caption=f"{pokemon.name} готов к приключениям!"
+        )
+
     else:
         bot.send_message(
             message.chat.id,
             f"{mention}, ты уже создал себе покемона!",
-            parse_mode="HTML"  # <-- и здесь тоже
+            parse_mode="HTML"
         )
 
 
 bot.infinity_polling(none_stop=True)
-
