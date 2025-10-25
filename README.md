@@ -4,3 +4,5 @@
 Данный проект является **телеграмм ботом**, в основе которого лежит небольшой справочник по покемонам. Проект создан на <ins>Python</ins> с помощью библеотек <ins>Telebot</ins>  и сторонних источников (https://pokeapi.co/api/v2/pokemon/). 
 
 Бот был создан как работа для онлайн школы программирования Kodland School.
+
+!<img width="704" height="513" alt="image" src="https://github.com/user-attachments/assets/c09259f9-bed4-455d-8357-9de64e4782c9" />
